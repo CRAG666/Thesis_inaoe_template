@@ -1,0 +1,255 @@
+%% ============================================================
+%%  inaoe-tesis.sty  –  Plantilla no oficial de INAOE
+%%
+%%  Autor: Diego Aguilar
+%%  GitHub: https://github.com/Crag666
+%%  Licencia: GNU General Public License v3.0 (GPLv3)
+%%
+%%  Descripción:
+%%  Plantilla LaTeX para la elaboración de tesis del
+%%  Instituto Nacional de Astrofísica, Óptica y Electrónica (INAOE).
+%%  Este paquete configura estilos tipográficos, portada,
+%%  formato de capítulos y otros elementos estructurales
+%%  comúnmente requeridos en tesis del instituto.
+%%
+%%  Uso:
+%%      \usepackage[english]{inaoe-tesis}   % tesis en inglés
+%%      \usepackage[spanish]{inaoe-tesis}   % tesis en español
+%%
+%%  Repositorio del proyecto:
+%%      https://github.com/Crag666
+%%
+%% ============================================================
+
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{inaoe-tesis}[2026/03/12 Plantilla no oficial de tesis INAOE]
+
+%% Paquetes base
+\RequirePackage{graphicx}
+\RequirePackage{xcolor}
+\RequirePackage{fancyhdr}
+\RequirePackage{fancybox}
+\RequirePackage{ifthen}
+\RequirePackage{calc}
+
+%%  OPCIONES DE IDIOMA
+
+\newboolean{@spanish}
+\setboolean{@spanish}{false}
+
+\DeclareOption{spanish}{\setboolean{@spanish}{true}}
+\DeclareOption{english}{\setboolean{@spanish}{false}}
+\DeclareOption*{\PackageWarning{inaoe-tesis}{Opción desconocida: `\CurrentOption'}}
+\ProcessOptions\relax
+
+\ifthenelse{\boolean{@spanish}}{%
+  \RequirePackage[spanish,es-nodecimaldot]{babel}
+  \AtBeginDocument{%
+    \renewcommand{\chaptername}{Capítulo}%
+    \renewcommand{\tablename}{Tabla}%
+    \renewcommand{\figurename}{Figura}%
+    \renewcommand{\contentsname}{Índice}%
+    \renewcommand{\listfigurename}{Lista de figuras}%
+    \renewcommand{\listtablename}{Lista de tablas}%
+    \renewcommand{\abstractname}{Resumen}%
+    \renewcommand{\bibname}{Referencias}%
+  }%
+  \newcommand{\@strBy}{Por:}
+  \newcommand{\@strReq}{Tesis sometida como requisito parcial para obtener el grado de:}
+  \newcommand{\@strAt}{en el}
+  \newcommand{\@strInst}{Instituto Nacional de Astrofísica,}
+  \newcommand{\@strInstB}{Óptica y Electrónica}
+  \newcommand{\@strSuper}{Asesor:}
+  \newcommand{\@strCopy}{\copyright\ INAOE \@anio\par Derechos reservados\par
+    \begin{flushleft}
+      El autor otorga al INAOE el permiso de\\
+      reproducir este documento total o\\
+      parcialmente, citando la fuente.\\
+  \end{flushleft}}
+}{%
+  \RequirePackage[english]{babel}
+  \AtBeginDocument{%
+    \renewcommand{\chaptername}{Chapter}%
+    \renewcommand{\tablename}{Table}%
+    \renewcommand{\figurename}{Figure}%
+    \renewcommand{\contentsname}{Index}%
+    \renewcommand{\listfigurename}{Figure list}%
+    \renewcommand{\listtablename}{Table list}%
+    \renewcommand{\abstractname}{Abstract}%
+    \renewcommand{\bibname}{References}%
+  }%
+  \newcommand{\@strBy}{By:}
+  \newcommand{\@strReq}{Thesis submitted as a requirement for obtaining the degree of:}
+  \newcommand{\@strAt}{at the}
+  \newcommand{\@strInst}{Instituto Nacional de Astrofísica,}
+  \newcommand{\@strInstB}{Óptica y Electrónica}
+  \newcommand{\@strSuper}{Supervised by:}
+  \newcommand{\@strCopy}{\copyright\ INAOE \@anio\par All rights reserved\par
+    \begin{flushleft}
+      The author hereby grants the permission for full or\\
+      partial reproduction and distribution of this\\
+      document to INAOE while mentioning the source\\
+  \end{flushleft}}
+}
+
+%%  METADATOS
+\newcommand{\@tituloTesis}{Título de la tesis}
+\newcommand{\@autor}{Nombre del autor}
+\newcommand{\@asesor}{Nombre del asesor}
+\newcommand{\@grado}{Grado}
+\newcommand{\@mes}{}
+\newcommand{\@anio}{2025}
+
+\newcommand{\tituloTesis}[1]{\renewcommand{\@tituloTesis}{#1}}
+\newcommand{\autor}[1]{\renewcommand{\@autor}{#1}}
+\newcommand{\asesor}[1]{\renewcommand{\@asesor}{#1}}
+\newcommand{\grado}[1]{\renewcommand{\@grado}{#1}}
+\newcommand{\mes}[1]{\renewcommand{\@mes}{#1}}
+\newcommand{\anio}[1]{\renewcommand{\@anio}{#1}}
+
+%%  COLOR INSTITUCIONAL
+\definecolor{DBlue}{rgb}{0.156, 0.121, 0.427}
+
+%%  TIPOGRAFÍA BASE (Times New Roman)
+\RequirePackage[T1]{fontenc}
+
+\RequirePackage{tgtermes}
+\RequirePackage{tgheros}
+\RequirePackage{tgcursor}
+
+\RequirePackage{newtxmath}
+
+%%  DISEÑO DE PÁGINA
+\voffset        = -2.0cm
+\topmargin      =  0.6cm
+\headheight     =  0.6cm
+\headsep        =  0.66cm
+\textheight     = 22.94cm
+\hoffset        =  0.0cm
+\oddsidemargin  =  1.5cm
+\textwidth      = 15.05cm
+
+%%  SANGRÍA E INTERLINEADO
+\parskip   = 0.75em
+\parindent = 10mm
+\def\baselinestretch{1.5}
+
+%%  ESTILO DE CAPÍTULOS
+
+\def\thickhrulefill{%
+\leavevmode \leaders \hrule height 1ex \hfill \kern \z@}
+
+%% Capítulos numerados
+\def\@makechapterhead#1{%
+  \vspace*{10\p@}%
+  {\parindent \z@ \centering \reset@font
+    \thickhrulefill\quad
+    \scshape \@chapapp\ \thechapter
+    \quad \thickhrulefill
+    \par\nobreak
+    \vspace*{10\p@}%
+    \interlinepenalty\@M
+    \hrule
+    \vspace*{10\p@}%
+    \Huge \bfseries #1\par\nobreak
+    \par
+    \vspace*{10\p@}%
+    \hrule
+    \vskip 100\p@
+}}
+
+%% Capítulos sin número  (\chapter*)
+\def\@makeschapterhead#1{%
+  \vspace*{10\p@}%
+  {\parindent \z@ \centering \reset@font
+    \thickhrulefill
+    \par\nobreak
+    \vspace*{10\p@}%
+    \interlinepenalty\@M
+    \hrule
+    \vspace*{10\p@}%
+    \Huge \bfseries #1\par\nobreak
+    \par
+    \vspace*{10\p@}%
+    \hrule
+    \vskip 100\p@
+}}
+
+%%  PORTADA  (\portada)
+\newcommand{\portada}{%
+  \addtolength{\voffset}{+0.96cm}
+  \addtolength{\hoffset}{1.45mm}
+  \setlength{\textwidth}{14.6cm}
+  \setlength{\textheight}{21.9cm}
+  \setlength{\evensidemargin}{0.3cm}
+  \setlength{\oddsidemargin}{1.3cm}
+  \setlength{\topmargin}{0.5cm}
+  \setlength{\headsep}{0.5cm}
+  \setlength{\headheight}{0.5cm}
+  \setlength{\marginparsep}{1mm}
+  \setlength{\marginparwidth}{2.5cm}
+  \setlength{\footskip}{1cm}
+  %
+  \pagestyle{empty}
+  \thisfancyput(-1in,-10in){%
+    \setlength{\unitlength}{1cm}%
+    \begin{picture}(21.59,27.94)
+      \color{DBlue}\linethickness{0.8mm}
+      \put(6.2,25.54){\line(1,0){13.3}}
+      \put(6.2,2.348){\line(1,0){10.6}}
+      \put(6.24,2.31){\line(0,1){23.2}}
+      \put(19.46,25.58){\line(0,-1){20.5}}
+      % Logotipos
+      \put(16.85,2.305){%
+      \includegraphics[scale=0.18]{cover/cmyk-original.jpg}}
+      \put(2.7,2.3){%
+      \includegraphics[scale=.352]{cover/Inaoe.pdf}}
+  \end{picture}}%
+  \hspace{2.3cm}%
+  \begin{minipage}[b][\textheight][c]{12cm}
+    \begin{center}\normalsize
+      \vspace{\stretch{1.2}}
+      {\Large\bfseries\@tituloTesis\par}
+      \vspace{\stretch{0.8}}
+      \@strBy\par
+      \vspace{\stretch{0.2}}
+      {\normalsize\bfseries\@autor\par}
+      \vspace{\stretch{0.5}}
+      {\@strReq\par}
+      \vspace{\stretch{0.2}}
+      \textbf{\MakeUppercase{\@grado}}
+      \vspace{\stretch{0.2}}
+
+      \@strAt
+
+      \textbf{\@strInst}
+
+      \textbf{\@strInstB}
+
+      \ifthenelse{\equal{\@mes}{}}{}{%
+      \@mes,\ }\@anio
+
+      Tonantzintla, Puebla
+
+      \vspace{\stretch{0.8}}
+      {\@strSuper\par}
+      {\bfseries\@asesor\par}
+      \vspace{\stretch{0.5}}
+      \vspace{\stretch{0.2}}
+
+      {\@strCopy}
+
+    \end{center}
+  \end{minipage}%
+  \newpage
+  \setlength{\textwidth}{15.05cm}
+  \setlength{\textheight}{22.94cm}
+  \setlength{\oddsidemargin}{1.5cm}
+  \voffset        = -2.0cm
+  \hoffset        =  0.0cm
+  \topmargin      =  0.6cm
+  \headheight     =  0.6cm
+  \headsep        =  0.66cm
+}
+
+\endinput

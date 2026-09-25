@@ -140,3 +140,4 @@ Thumbs.db
 build/
 dist/
 out/
+*.pdf

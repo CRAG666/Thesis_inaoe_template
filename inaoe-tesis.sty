@@ -2,7 +2,7 @@
 %%  inaoe-tesis.sty  –  Plantilla no oficial de INAOE
 %%
 %%  Autor: Diego Aguilar
-%%  GitHub: https://github.com/Crag666
+%%  GitHub: https://github.com/CRAG666
 %%  Licencia: GNU General Public License v3.0 (GPLv3)
 %%
 %%  Descripción:
@@ -16,35 +16,98 @@
 %%      \usepackage[english]{inaoe-tesis}   % tesis en inglés
 %%      \usepackage[spanish]{inaoe-tesis}   % tesis en español
 %%
+%%  Requisitos:
+%%      LaTeX 2020-10-01 o posterior (usa los ganchos de shipout del
+%%      kernel para dibujar la portada). Motor recomendado: pdflatex.
+%%
 %%  Repositorio del proyecto:
-%%      https://github.com/Crag666
+%%      https://github.com/CRAG666/Thesis_inaoe_template
 %%
 %% ============================================================
 
-\NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{inaoe-tesis}[2026/03/12 Plantilla no oficial de tesis INAOE]
+\NeedsTeXFormat{LaTeX2e}[2020/10/01]
+\ProvidesPackage{inaoe-tesis}[2026/09/24 v2.0 Plantilla no oficial de tesis INAOE]
 
-%% Paquetes base
-\RequirePackage{graphicx}
-\RequirePackage{xcolor}
-\RequirePackage{fancyhdr}
-\RequirePackage{fancybox}
-\RequirePackage{ifthen}
-\RequirePackage{calc}
-
+%% ------------------------------------------------------------
 %%  OPCIONES DE IDIOMA
+%% ------------------------------------------------------------
 
-\newboolean{@spanish}
-\setboolean{@spanish}{false}
-
-\DeclareOption{spanish}{\setboolean{@spanish}{true}}
-\DeclareOption{english}{\setboolean{@spanish}{false}}
+\newif\ifinaoe@spanish
+\DeclareOption{spanish}{\inaoe@spanishtrue}
+\DeclareOption{english}{\inaoe@spanishfalse}
 \DeclareOption*{\PackageWarning{inaoe-tesis}{Opción desconocida: `\CurrentOption'}}
 \ProcessOptions\relax
 
-\ifthenelse{\boolean{@spanish}}{%
+%% ------------------------------------------------------------
+%%  CODIFICACIÓN E IDIOMA
+%% ------------------------------------------------------------
+
+\RequirePackage[T1]{fontenc}
+
+\ifinaoe@spanish
   \RequirePackage[spanish,es-nodecimaldot]{babel}
-  \AtBeginDocument{%
+\else
+  \RequirePackage[english]{babel}
+\fi
+
+%% ------------------------------------------------------------
+%%  TIPOGRAFÍA (TeX Gyre Termes/Heros/Cursor + newtxmath)
+%% ------------------------------------------------------------
+
+\RequirePackage{tgtermes}
+\RequirePackage{tgheros}
+\RequirePackage{tgcursor}
+\RequirePackage{amsmath}   % newtxmath debe cargarse después de amsmath
+\RequirePackage{newtxmath}
+
+%% ------------------------------------------------------------
+%%  PAQUETES AUXILIARES
+%% ------------------------------------------------------------
+
+\RequirePackage{graphicx}
+\RequirePackage{xcolor}
+
+%% ------------------------------------------------------------
+%%  DISEÑO DE PÁGINA (carta)
+%%  Margen izquierdo 1in + 1.5cm, cuerpo de 15.05 x 22.94 cm con
+%%  su borde superior a 2.4 cm del papel. Ajustable con \geometry{}.
+%% ------------------------------------------------------------
+
+\RequirePackage[
+  letterpaper,
+  left=4.04cm,
+  width=15.05cm,
+  top=2.4cm,
+  height=22.94cm,
+  headheight=0.6cm,
+  headsep=0.66cm,
+  footskip=30pt,
+  marginparwidth=44pt,
+  marginparsep=10pt,
+]{geometry}
+
+%% ------------------------------------------------------------
+%%  SANGRÍA E INTERLINEADO
+%% ------------------------------------------------------------
+
+\setlength{\parskip}{0.75em}
+\setlength{\parindent}{10mm}
+\linespread{1.5}
+
+%% ------------------------------------------------------------
+%%  COLOR INSTITUCIONAL
+%% ------------------------------------------------------------
+
+\definecolor{DBlue}{rgb}{0.156, 0.121, 0.427}
+
+%% ------------------------------------------------------------
+%%  NOMBRES Y CADENAS SEGÚN EL IDIOMA
+%%  Se añaden a \captions<idioma> para que sobrevivan a
+%%  \selectlanguage (por ejemplo, un resumen en otro idioma).
+%% ------------------------------------------------------------
+
+\ifinaoe@spanish
+  \addto\captionsspanish{%
     \renewcommand{\chaptername}{Capítulo}%
     \renewcommand{\tablename}{Tabla}%
     \renewcommand{\figurename}{Figura}%
@@ -53,104 +116,91 @@
     \renewcommand{\listtablename}{Lista de tablas}%
     \renewcommand{\abstractname}{Resumen}%
     \renewcommand{\bibname}{Referencias}%
-  }%
-  \newcommand{\@strBy}{Por:}
-  \newcommand{\@strReq}{Tesis sometida como requisito parcial para obtener el grado de:}
-  \newcommand{\@strAt}{en el}
-  \newcommand{\@strInst}{Instituto Nacional de Astrofísica,}
-  \newcommand{\@strInstB}{Óptica y Electrónica}
-  \newcommand{\@strSuper}{Asesor:}
-  \newcommand{\@strCopy}{\copyright\ INAOE \@anio\par Derechos reservados\par
+  }
+  \newcommand*{\inaoe@strBy}{Por:}
+  \newcommand*{\inaoe@strReq}{Tesis sometida como requisito parcial para obtener el grado de:}
+  \newcommand*{\inaoe@strAt}{en el}
+  \newcommand*{\inaoe@strInst}{Instituto Nacional de Astrofísica,}
+  \newcommand*{\inaoe@strInstB}{Óptica y Electrónica}
+  \newcommand*{\inaoe@strSuper}{Asesor:}
+  \newcommand{\inaoe@strCopy}{\copyright\ INAOE \inaoe@anio\par Derechos reservados\par
     \begin{flushleft}
       El autor otorga al INAOE el permiso de\\
       reproducir este documento total o\\
       parcialmente, citando la fuente.\\
   \end{flushleft}}
-}{%
-  \RequirePackage[english]{babel}
-  \AtBeginDocument{%
+\else
+  \addto\captionsenglish{%
     \renewcommand{\chaptername}{Chapter}%
     \renewcommand{\tablename}{Table}%
     \renewcommand{\figurename}{Figure}%
-    \renewcommand{\contentsname}{Index}%
-    \renewcommand{\listfigurename}{Figure list}%
-    \renewcommand{\listtablename}{Table list}%
+    \renewcommand{\contentsname}{Contents}%
+    \renewcommand{\listfigurename}{List of Figures}%
+    \renewcommand{\listtablename}{List of Tables}%
     \renewcommand{\abstractname}{Abstract}%
     \renewcommand{\bibname}{References}%
-  }%
-  \newcommand{\@strBy}{By:}
-  \newcommand{\@strReq}{Thesis submitted as a requirement for obtaining the degree of:}
-  \newcommand{\@strAt}{at the}
-  \newcommand{\@strInst}{Instituto Nacional de Astrofísica,}
-  \newcommand{\@strInstB}{Óptica y Electrónica}
-  \newcommand{\@strSuper}{Supervised by:}
-  \newcommand{\@strCopy}{\copyright\ INAOE \@anio\par All rights reserved\par
+  }
+  \newcommand*{\inaoe@strBy}{By:}
+  \newcommand*{\inaoe@strReq}{Thesis submitted as a requirement for obtaining the degree of:}
+  \newcommand*{\inaoe@strAt}{at the}
+  \newcommand*{\inaoe@strInst}{Instituto Nacional de Astrofísica,}
+  \newcommand*{\inaoe@strInstB}{Óptica y Electrónica}
+  \newcommand*{\inaoe@strSuper}{Supervised by:}
+  \newcommand{\inaoe@strCopy}{\copyright\ INAOE \inaoe@anio\par All rights reserved\par
     \begin{flushleft}
       The author hereby grants the permission for full or\\
       partial reproduction and distribution of this\\
       document to INAOE while mentioning the source\\
   \end{flushleft}}
+\fi
+
+%% ------------------------------------------------------------
+%%  METADATOS
+%% ------------------------------------------------------------
+
+\newcommand*{\inaoe@titulo}{Título de la tesis}
+\newcommand*{\inaoe@autor}{Nombre del autor}
+\newcommand*{\inaoe@asesor}{Nombre del asesor}
+\newcommand*{\inaoe@grado}{Grado}
+\newcommand*{\inaoe@mes}{}
+\newcommand*{\inaoe@anio}{\the\year}
+
+\newcommand{\tituloTesis}[1]{\gdef\inaoe@titulo{#1}}
+\newcommand{\autor}[1]{\gdef\inaoe@autor{#1}}
+\newcommand{\asesor}[1]{\gdef\inaoe@asesor{#1}}
+\newcommand{\grado}[1]{\gdef\inaoe@grado{#1}}
+\newcommand{\mes}[1]{\gdef\inaoe@mes{#1}}
+\newcommand{\anio}[1]{\gdef\inaoe@anio{#1}}
+
+%% Metadatos del PDF si el documento carga hyperref y no los definió
+\AtBeginDocument{%
+  \@ifpackageloaded{hyperref}{%
+    \ifx\@pdftitle\@empty  \hypersetup{pdftitle={\inaoe@titulo}}\fi
+    \ifx\@pdfauthor\@empty \hypersetup{pdfauthor={\inaoe@autor}}\fi
+  }{}%
 }
 
-%%  METADATOS
-\newcommand{\@tituloTesis}{Título de la tesis}
-\newcommand{\@autor}{Nombre del autor}
-\newcommand{\@asesor}{Nombre del asesor}
-\newcommand{\@grado}{Grado}
-\newcommand{\@mes}{}
-\newcommand{\@anio}{2025}
-
-\newcommand{\tituloTesis}[1]{\renewcommand{\@tituloTesis}{#1}}
-\newcommand{\autor}[1]{\renewcommand{\@autor}{#1}}
-\newcommand{\asesor}[1]{\renewcommand{\@asesor}{#1}}
-\newcommand{\grado}[1]{\renewcommand{\@grado}{#1}}
-\newcommand{\mes}[1]{\renewcommand{\@mes}{#1}}
-\newcommand{\anio}[1]{\renewcommand{\@anio}{#1}}
-
-%%  COLOR INSTITUCIONAL
-\definecolor{DBlue}{rgb}{0.156, 0.121, 0.427}
-
-%%  TIPOGRAFÍA BASE (Times New Roman)
-\RequirePackage[T1]{fontenc}
-
-\RequirePackage{tgtermes}
-\RequirePackage{tgheros}
-\RequirePackage{tgcursor}
-
-\RequirePackage{newtxmath}
-
-%%  DISEÑO DE PÁGINA
-\voffset        = -2.0cm
-\topmargin      =  0.6cm
-\headheight     =  0.6cm
-\headsep        =  0.66cm
-\textheight     = 22.94cm
-\hoffset        =  0.0cm
-\oddsidemargin  =  1.5cm
-\textwidth      = 15.05cm
-
-%%  SANGRÍA E INTERLINEADO
-\parskip   = 0.75em
-\parindent = 10mm
-\def\baselinestretch{1.5}
-
+%% ------------------------------------------------------------
 %%  ESTILO DE CAPÍTULOS
+%% ------------------------------------------------------------
 
-\def\thickhrulefill{%
-\leavevmode \leaders \hrule height 1ex \hfill \kern \z@}
+\newcommand*{\thickhrulefill}{%
+  \leavevmode\leaders\hrule height 1ex\hfill\kern\z@}
 
 %% Capítulos numerados
-\def\@makechapterhead#1{%
+\renewcommand{\@makechapterhead}[1]{%
   \vspace*{10\p@}%
   {\parindent \z@ \centering \reset@font
     \thickhrulefill\quad
-    \scshape \@chapapp\ \thechapter
+    {\scshape \@chapapp\ \thechapter\ }%
     \quad \thickhrulefill
     \par\nobreak
     \vspace*{10\p@}%
     \interlinepenalty\@M
     \hrule
     \vspace*{10\p@}%
+    %% Para recuperar los títulos en versalitas de versiones anteriores,
+    %% añada \scshape justo antes de #1 en la línea siguiente.
     \Huge \bfseries #1\par\nobreak
     \par
     \vspace*{10\p@}%
@@ -159,7 +209,7 @@
 }}
 
 %% Capítulos sin número  (\chapter*)
-\def\@makeschapterhead#1{%
+\renewcommand{\@makeschapterhead}[1]{%
   \vspace*{10\p@}%
   {\parindent \z@ \centering \reset@font
     \thickhrulefill
@@ -175,81 +225,78 @@
     \vskip 100\p@
 }}
 
+%% ------------------------------------------------------------
 %%  PORTADA  (\portada)
-\newcommand{\portada}{%
-  \addtolength{\voffset}{+0.96cm}
-  \addtolength{\hoffset}{1.45mm}
-  \setlength{\textwidth}{14.6cm}
-  \setlength{\textheight}{21.9cm}
-  \setlength{\evensidemargin}{0.3cm}
-  \setlength{\oddsidemargin}{1.3cm}
-  \setlength{\topmargin}{0.5cm}
-  \setlength{\headsep}{0.5cm}
-  \setlength{\headheight}{0.5cm}
-  \setlength{\marginparsep}{1mm}
-  \setlength{\marginparwidth}{2.5cm}
-  \setlength{\footskip}{1cm}
-  %
-  \pagestyle{empty}
-  \thisfancyput(-1in,-10in){%
-    \setlength{\unitlength}{1cm}%
-    \begin{picture}(21.59,27.94)
-      \color{DBlue}\linethickness{0.8mm}
-      \put(6.2,25.54){\line(1,0){13.3}}
-      \put(6.2,2.348){\line(1,0){10.6}}
-      \put(6.24,2.31){\line(0,1){23.2}}
-      \put(19.46,25.58){\line(0,-1){20.5}}
-      % Logotipos
-      \put(16.85,2.305){%
-      \includegraphics[scale=0.18]{cover/cmyk-original.jpg}}
-      \put(2.7,2.3){%
-      \includegraphics[scale=.352]{cover/Inaoe.pdf}}
-  \end{picture}}%
-  \hspace{2.3cm}%
-  \begin{minipage}[b][\textheight][c]{12cm}
+%%
+%%  Todo el contenido se dibuja en coordenadas absolutas de la
+%%  hoja carta (cm, origen en la esquina inferior izquierda) por
+%%  medio del gancho shipout/background del kernel. Por ello no
+%%  depende de los márgenes del documento ni los modifica.
+%% ------------------------------------------------------------
+
+%% Bloque de texto centrado: 12 x 21.9 cm
+\newcommand{\inaoe@portada@texto}{%
+  \begin{minipage}[b][21.9cm][c]{12cm}
+    \normalfont
     \begin{center}\normalsize
       \vspace{\stretch{1.2}}
-      {\Large\bfseries\@tituloTesis\par}
+      {\Large\bfseries\inaoe@titulo\par}
       \vspace{\stretch{0.8}}
-      \@strBy\par
+      \inaoe@strBy\par
       \vspace{\stretch{0.2}}
-      {\normalsize\bfseries\@autor\par}
+      {\normalsize\bfseries\inaoe@autor\par}
       \vspace{\stretch{0.5}}
-      {\@strReq\par}
+      {\inaoe@strReq\par}
       \vspace{\stretch{0.2}}
-      \textbf{\MakeUppercase{\@grado}}
+      \textbf{\MakeUppercase{\inaoe@grado}}
       \vspace{\stretch{0.2}}
 
-      \@strAt
+      \inaoe@strAt
 
-      \textbf{\@strInst}
+      \textbf{\inaoe@strInst}
 
-      \textbf{\@strInstB}
+      \textbf{\inaoe@strInstB}
 
-      \ifthenelse{\equal{\@mes}{}}{}{%
-      \@mes,\ }\@anio
+      \ifx\inaoe@mes\@empty\else\inaoe@mes,\ \fi\inaoe@anio
 
       Tonantzintla, Puebla
 
       \vspace{\stretch{0.8}}
-      {\@strSuper\par}
-      {\bfseries\@asesor\par}
+      {\inaoe@strSuper\par}
+      {\bfseries\inaoe@asesor\par}
       \vspace{\stretch{0.5}}
       \vspace{\stretch{0.2}}
 
-      {\@strCopy}
+      {\inaoe@strCopy}
 
     \end{center}
   \end{minipage}%
-  \newpage
-  \setlength{\textwidth}{15.05cm}
-  \setlength{\textheight}{22.94cm}
-  \setlength{\oddsidemargin}{1.5cm}
-  \voffset        = -2.0cm
-  \hoffset        =  0.0cm
-  \topmargin      =  0.6cm
-  \headheight     =  0.6cm
-  \headsep        =  0.66cm
+}
+
+%% Marco, logotipos y bloque de texto
+\newcommand{\inaoe@portada@dibujo}{%
+  \setlength{\unitlength}{1cm}%
+  \begin{picture}(0,0)
+    % Marco institucional
+    {\color{DBlue}\linethickness{0.8mm}%
+      \put(6.2,25.54){\line(1,0){13.3}}
+      \put(6.2,2.348){\line(1,0){10.6}}
+      \put(6.24,2.31){\line(0,1){23.2}}
+      \put(19.46,25.58){\line(0,-1){20.5}}}
+    % Logotipos
+    \put(16.85,2.305){\includegraphics[scale=0.18]{cover/cmyk-original.jpg}}
+    \put(2.7,2.3){\includegraphics[scale=.352]{cover/Inaoe.pdf}}
+    % Texto (esquina inferior izquierda del bloque)
+    \put(7.285,3.04){\inaoe@portada@texto}
+  \end{picture}%
+}
+
+\newcommand*{\portada}{%
+  \clearpage
+  \AddToHookNext{shipout/background}{%
+    \put(0,-\paperheight){\inaoe@portada@dibujo}}%
+  \thispagestyle{empty}%
+  \null\newpage
 }
 
 \endinput

@@ -1,38 +1,41 @@
 %% ============================================================
-%%  Tesis INAOE
+%%  Tesis INAOE — documento de ejemplo
+%%
+%%  Compilar:   latexmk          (lee .latexmkrc: pdflatex + bibtex)
+%%  Vigilar:    latexmk -pvc     (recompila al guardar)
+%%  Limpiar:    latexmk -C
+%%
+%%  Compilación rápida mientras se escribe:
+%%    \documentclass[12pt,draft]{report} omite imágenes, microtype
+%%    e hipervínculos y marca las líneas desbordadas.
 %% ============================================================
 
 \documentclass[12pt]{report}
 
 %------------------------------------------------
-% Codificación y tipografía
-%------------------------------------------------
-
-\usepackage[T1]{fontenc}
-\usepackage[utf8]{inputenc}
-
-\usepackage{microtype}
-\setlength{\emergencystretch}{3em}
-
-%------------------------------------------------
-% Idioma
+% Plantilla: fuentes, márgenes, idioma y portada
 %------------------------------------------------
 
 \usepackage[english]{inaoe-tesis}
 % \usepackage[spanish]{inaoe-tesis}
 
 %------------------------------------------------
-% Matemáticas
+% Microtipografía (después de las fuentes)
 %------------------------------------------------
 
-\usepackage{amsmath}
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
+
+%------------------------------------------------
+% Matemáticas (amsmath ya lo carga la plantilla)
+%------------------------------------------------
+
 \usepackage{mathtools}
 
 %------------------------------------------------
 % Figuras y tablas
 %------------------------------------------------
 
-\usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{threeparttable}
 
@@ -57,14 +60,22 @@
 \usepackage[normalem]{ulem}
 
 %------------------------------------------------
-% Hipervínculos
+% Bibliografía
+%------------------------------------------------
+
+% El estilo unsrtnat requiere natbib; numbers -> citas numéricas [1]
+\usepackage[numbers]{natbib}
+
+%------------------------------------------------
+% Hipervínculos (siempre al final del preámbulo)
 %------------------------------------------------
 
 \usepackage[
   colorlinks=true,
   linkcolor=blue,
   citecolor=blue,
-  urlcolor=blue
+  urlcolor=blue,
+  hypertexnames=false % evita destinos duplicados al reiniciar la numeración
 ]{hyperref}
 
 %------------------------------------------------
@@ -92,17 +103,15 @@
 \begin{document}
 
 %------------------------------------------------
-% Portada
+% Portada y página en blanco posterior
 %------------------------------------------------
 
 \portada
+\thispagestyle{empty}\null\clearpage
 
 %------------------------------------------------
 % Páginas preliminares
 %------------------------------------------------
-
-\clearpage
-\thispagestyle{empty}\mbox{}\clearpage
 
 \pagenumbering{Roman}
 
@@ -148,7 +157,8 @@ This thesis presents...
 
 \section{Background}
 
-Text...
+Text... This document was typeset with \LaTeX~\cite{lamport94}, which is
+built on top of \TeX~\cite{knuth84}.
 
 \section{Problem Statement}
 
@@ -193,6 +203,7 @@ Text...
 %------------------------------------------------
 
 \clearpage
+\phantomsection % ancla correcta para el enlace del índice
 \addcontentsline{toc}{chapter}{\bibname}
 
 \bibliographystyle{unsrtnat}

@@ -36,15 +36,29 @@ See the `LICENSE` file for the complete terms.
 
 # Features
 
-* Automatic thesis **cover generation**, drawn in absolute page coordinates
-  through the LaTeX kernel shipout hooks, so it never depends on the
-  document margins
-* **Spanish and English** document support; names such as *Tabla* or
-  *References* survive `\selectlanguage`, so a thesis can include an abstract
-  in the other language
-* Preconfigured **typography similar to Times** (TeX Gyre Termes, Heros and
-  Cursor with `newtxmath`)
-* Custom **chapter style**
+* **Cover pages identical to the Typst version** of the template (same
+  frame, logos, text positions and spacing): the official thesis cover
+  (`\portada`) and the thesis proposal cover used by the Coordinación de
+  Ciencias Computacionales (`\portadaPropuesta`). Both are drawn in absolute
+  page coordinates through the LaTeX kernel shipout hooks, so they never
+  depend on the document margins
+* **Spanish and English** document support; names such as *Tabla*, *Índice*
+  or *References* are stored with babel's `\setlocalecaption`, so they
+  survive `\selectlanguage` and a thesis can include an abstract in the
+  other language
+* **TeX Gyre Termes** typography, as in the Typst version: `newtxtext` and
+  `newtxmath` with `pdflatex`; OpenType fonts through `fontspec` and
+  `unicode-math` (TeX Gyre Termes Math) with `lualatex`, `xelatex` or
+  `tectonic`, loaded by file name so they need no system installation
+* Custom **chapter style**, and a table of contents with dotted leaders on
+  every entry
+* **Front matter environments** (`dedicatoria`, `agradecimientos`,
+  `resumen`) that are added to the table of contents
+* The **lists of figures and tables are omitted** when the document has no
+  figures or tables
+* **Table captions above** the table (`caption`)
+* **Bibliography with `biblatex` and `biber`** (IEEE style in the example),
+  with `\cite`, `\textcite`, `\citeauthor`, `\citeyear` and `\fullcite`
 * Predefined **thesis metadata commands**, also written to the PDF metadata
   when `hyperref` is loaded
 * Page layout declared with `geometry`, adjustable with `\geometry{...}`
@@ -53,13 +67,15 @@ See the `LICENSE` file for the complete terms.
 
 # Requirements
 
-* A LaTeX distribution from 2020-10 or later (TeX Live 2020+, MiKTeX,
-  Overleaf). The cover uses the `shipout/background` hook of the LaTeX
-  kernel.
+* A LaTeX distribution from 2021-11 or later (TeX Live 2022+, MiKTeX,
+  Overleaf, or the default Tectonic bundle). The cover uses the
+  `shipout/background` hook of the LaTeX kernel.
 * `pdflatex` is the recommended engine. It is the fastest for this
   template and the one used by the provided `.latexmkrc`. The template also
-  compiles with `lualatex`.
-* `latexmk` (bundled with TeX Live and MiKTeX) for building.
+  compiles with `lualatex` (`latexmk -lualatex`) and with `tectonic`, which
+  use OpenType fonts.
+* `biber` for the bibliography and `latexmk` for building (both bundled
+  with TeX Live and MiKTeX).
 
 # Installation
 
@@ -89,10 +105,16 @@ thesis/
 # Compiling
 
 ```bash
-latexmk            # build example.tex (pdflatex + bibtex, minimal passes)
+latexmk            # build example.tex (pdflatex + biber, minimal passes)
+latexmk -lualatex  # build with LuaLaTeX and OpenType fonts
 latexmk -pvc       # rebuild automatically whenever a file is saved
 latexmk -C         # remove every generated file
+tectonic example.tex  # build with Tectonic (runs biber automatically)
 ```
+
+Tectonic downloads the TeX files it needs on the first run. It runs the
+`biber` found on the `PATH`, whose version must match the `biblatex` of the
+Tectonic bundle (biber 2.17 for the default TeX Live 2022 bundle).
 
 The `.latexmkrc` file drives the whole build. On the first run it stores the
 complete preamble (class, packages, fonts and template) in `example.fmt`
@@ -144,13 +166,20 @@ The template provides commands for defining thesis information.
 
 \autor{Author Name}
 
-\asesor{Advisor Name}
+\asesor{Dr. First Advisor \\ Dra. Second Advisor}
 
 \grado{M.S. in Computer Science}
 
 \mes{October}
 
-\anio{2025}
+\anio{2025}        % optional; defaults to the current year
+```
+
+Optional commands:
+
+```latex
+\requisito{Custom text above the degree}   % \requisito{} removes the line
+\departamento{Coordinación de Ciencias Computacionales}  % proposal cover
 ```
 
 If `hyperref` is loaded, the title and author are also used as PDF metadata
@@ -158,49 +187,95 @@ unless `pdftitle` or `pdfauthor` were set explicitly.
 
 # Generating the Cover Page
 
-To generate the official cover page:
-
 ```latex
-\portada
+\portada            % official thesis cover
+\portadaPropuesta   % thesis proposal cover (no rights or reproduction notice)
 ```
 
-This command automatically uses the metadata previously defined. It always
-starts on a fresh page and leaves the page style and margins untouched.
+Both commands use the metadata previously defined. They always start on a
+fresh page and leave the page style and margins untouched.
+
+# Front Matter
+
+```latex
+\pagenumbering{roman}
+
+\tableofcontents
+\listoffigures      % omitted when there are no figures
+\listoftables       % omitted when there are no tables
+
+\begin{dedicatoria} ... \end{dedicatoria}
+\begin{agradecimientos} ... \end{agradecimientos}
+\begin{resumen} ... \end{resumen}
+
+\clearpage
+\pagenumbering{arabic}
+```
+
+The titles follow the language of the thesis (*Dedication* / *Dedicatoria*,
+*Acknowledgements* / *Agradecimientos*, *Abstract* / *Resumen*).
+
+# Bibliography
+
+```latex
+\usepackage[style=ieee]{biblatex}
+\addbibresource{references.bib}
+...
+\printbibliography[heading=bibintoc]
+```
+
+The bibliography is titled *References* / *Referencias*.
+
+| biblatex             | Output              |
+|----------------------|---------------------|
+| `\cite{key}`         | [1]                 |
+| `\textcite{key}`     | L. Lamport [1]      |
+| `\citeauthor{key}`   | L. Lamport          |
+| `\citeyear{key}`     | 1994                |
+| `\cite[p.~10]{key}`  | [1, p. 10]          |
 
 # Customization
 
 * **Margins.** The layout is set with `geometry`; adjust it after loading
   the package with `\geometry{...}`.
-* **Chapter titles.** Numbered chapter titles are set in bold. To use bold
-  small capitals instead, add `\scshape` before `#1` in
-  `\@makechapterhead` (see the comment in `inaoe-tesis.sty`).
-* **Language names.** The names of chapters, tables, figures and lists are
-  added to `\captionsspanish` / `\captionsenglish`; override them the same
-  way, for example `\addto\captionsspanish{\renewcommand{\bibname}{Bibliografía}}`.
+* **Language names.** Override them with babel, for example
+  `\setlocalecaption{spanish}{bib}{Bibliografía}`.
 
 # Minimal Example
 
 ```latex
-\documentclass{report}
+\documentclass[12pt]{report}
 
 \usepackage[english]{inaoe-tesis}
+\usepackage{csquotes}
+\usepackage[style=ieee]{biblatex}
+\addbibresource{references.bib}
 
 \tituloTesis{Example Thesis}
 \autor{John Doe}
 \asesor{Dr. Advisor}
 \grado{M.S. in Computer Science}
 \mes{October}
-\anio{2025}
 
 \begin{document}
 
 \portada
 
+\pagenumbering{roman}
 \tableofcontents
+
+\begin{resumen}
+  This thesis presents...
+\end{resumen}
+
+\clearpage
+\pagenumbering{arabic}
 
 \chapter{Introduction}
 
-This is a sample thesis document.
+This is a sample thesis document~\cite{lamport94}.
+
+\printbibliography[heading=bibintoc]
 
 \end{document}
 ```
@@ -210,18 +285,18 @@ This is a sample thesis document.
 The template loads the following packages:
 
 * `babel`
-* `fontenc`
-* `tgtermes`, `tgheros`, `tgcursor`
-* `amsmath`
-* `newtxmath`
-* `geometry`
+* `iftex`
+* `mathtools` (loads `amsmath`)
+* `fontenc`, `newtxtext`, `newtxmath` (pdflatex)
+* `unicode-math` (loads `fontspec`; lualatex and xelatex)
 * `graphicx`
 * `xcolor`
+* `caption`
+* `geometry`
 
-`example.tex` additionally uses `microtype`, `mathtools`, `booktabs`,
-`threeparttable`, `algorithm`, `algpseudocode`, `listings`, `csquotes`,
-`ulem`, `natbib` (required by the `unsrtnat` bibliography style, with the
-`numbers` option for numeric citations like `[1]`) and `hyperref` with
+`example.tex` additionally uses `microtype`, `booktabs`, `threeparttable`,
+`algorithm`, `algpseudocode`, `listings`, `csquotes`, `ulem`, `biblatex`
+(`biblatex-ieee` style, processed with `biber`) and `hyperref` with
 `hypertexnames=false`, which avoids duplicate destination warnings when the
 page numbering is restarted after the cover. The precompiled preamble uses
 `mylatexformat`.

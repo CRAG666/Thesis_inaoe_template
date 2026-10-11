@@ -10,23 +10,25 @@
 %%  Instituto Nacional de Astrofísica, Óptica y Electrónica (INAOE).
 %%  Este paquete configura estilos tipográficos, portada,
 %%  formato de capítulos y otros elementos estructurales
-%%  comúnmente requeridos en tesis del instituto.
+%%  comúnmente requeridos en tesis del instituto. Produce el mismo
+%%  documento que la versión Typst de la plantilla.
 %%
 %%  Uso:
 %%      \usepackage[english]{inaoe-tesis}   % tesis en inglés
 %%      \usepackage[spanish]{inaoe-tesis}   % tesis en español
 %%
 %%  Requisitos:
-%%      LaTeX 2020-10-01 o posterior (usa los ganchos de shipout del
-%%      kernel para dibujar la portada). Motor recomendado: pdflatex.
+%%      LaTeX 2021-11-15 o posterior. Motores: pdflatex (TeX Gyre
+%%      Termes vía newtx), lualatex, xelatex o tectonic (TeX Gyre
+%%      Termes y TeX Gyre Termes Math vía fontspec y unicode-math).
 %%
 %%  Repositorio del proyecto:
 %%      https://github.com/CRAG666/Thesis_inaoe_template
 %%
 %% ============================================================
 
-\NeedsTeXFormat{LaTeX2e}[2020/10/01]
-\ProvidesPackage{inaoe-tesis}[2026/09/24 v2.0 Plantilla no oficial de tesis INAOE]
+\NeedsTeXFormat{LaTeX2e}[2021-11-15]
+\ProvidesPackage{inaoe-tesis}[2026/10/11 v3.0 Plantilla no oficial de tesis INAOE]
 
 %% ------------------------------------------------------------
 %%  OPCIONES DE IDIOMA
@@ -35,30 +37,38 @@
 \newif\ifinaoe@spanish
 \DeclareOption{spanish}{\inaoe@spanishtrue}
 \DeclareOption{english}{\inaoe@spanishfalse}
-\DeclareOption*{\PackageWarning{inaoe-tesis}{Opción desconocida: `\CurrentOption'}}
 \ProcessOptions\relax
 
 %% ------------------------------------------------------------
-%%  CODIFICACIÓN E IDIOMA
+%%  IDIOMA
 %% ------------------------------------------------------------
 
-\RequirePackage[T1]{fontenc}
-
 \ifinaoe@spanish
-  \RequirePackage[spanish,es-nodecimaldot]{babel}
+  \RequirePackage[spanish,es-tabla,es-nodecimaldot,es-nosectiondot]{babel}
 \else
   \RequirePackage[english]{babel}
 \fi
 
 %% ------------------------------------------------------------
-%%  TIPOGRAFÍA (TeX Gyre Termes/Heros/Cursor + newtxmath)
+%%  TIPOGRAFÍA (TeX Gyre Termes, como la plantilla Typst)
 %% ------------------------------------------------------------
 
-\RequirePackage{tgtermes}
-\RequirePackage{tgheros}
-\RequirePackage{tgcursor}
-\RequirePackage{amsmath}   % newtxmath debe cargarse después de amsmath
-\RequirePackage{newtxmath}
+\RequirePackage{iftex}
+\RequirePackage{mathtools}
+\iftutex
+  \RequirePackage{unicode-math}
+  \setmainfont{texgyretermes}[Extension=.otf, UprightFont=*-regular,
+    BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+  \setsansfont{texgyreheros}[Extension=.otf, UprightFont=*-regular,
+    BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+  \setmonofont{texgyrecursor}[Extension=.otf, UprightFont=*-regular,
+    BoldFont=*-bold, ItalicFont=*-italic, BoldItalicFont=*-bolditalic]
+  \setmathfont{texgyretermes-math.otf}
+\else
+  \RequirePackage[T1]{fontenc}
+  \RequirePackage{newtxtext}
+  \RequirePackage{newtxmath}
+\fi
 
 %% ------------------------------------------------------------
 %%  PAQUETES AUXILIARES
@@ -66,11 +76,13 @@
 
 \RequirePackage{graphicx}
 \RequirePackage{xcolor}
+\RequirePackage{caption}
+\captionsetup[table]{position=top}
 
 %% ------------------------------------------------------------
 %%  DISEÑO DE PÁGINA (carta)
-%%  Margen izquierdo 1in + 1.5cm, cuerpo de 15.05 x 22.94 cm con
-%%  su borde superior a 2.4 cm del papel. Ajustable con \geometry{}.
+%%  Márgenes: izquierdo 4.04 cm, derecho 2.5 cm, superior 2.4 cm.
+%%  Ajustable con \geometry{}.
 %% ------------------------------------------------------------
 
 \RequirePackage[
@@ -88,71 +100,61 @@
 
 %% ------------------------------------------------------------
 %%  SANGRÍA E INTERLINEADO
+%%  17.33 pt entre líneas base a 12 pt, como la plantilla Typst.
 %% ------------------------------------------------------------
 
 \setlength{\parskip}{0.75em}
 \setlength{\parindent}{10mm}
-\linespread{1.5}
+\linespread{1.195}
 
 %% ------------------------------------------------------------
 %%  COLOR INSTITUCIONAL
 %% ------------------------------------------------------------
 
-\definecolor{DBlue}{rgb}{0.156, 0.121, 0.427}
+\definecolor{DBlue}{RGB}{40,31,109}
 
 %% ------------------------------------------------------------
 %%  NOMBRES Y CADENAS SEGÚN EL IDIOMA
-%%  Se añaden a \captions<idioma> para que sobrevivan a
-%%  \selectlanguage (por ejemplo, un resumen en otro idioma).
+%%  \setlocalecaption los guarda en el idioma, de modo que
+%%  sobreviven a \selectlanguage (p. ej., un resumen en otro idioma).
 %% ------------------------------------------------------------
 
 \ifinaoe@spanish
-  \addto\captionsspanish{%
-    \renewcommand{\chaptername}{Capítulo}%
-    \renewcommand{\tablename}{Tabla}%
-    \renewcommand{\figurename}{Figura}%
-    \renewcommand{\contentsname}{Índice}%
-    \renewcommand{\listfigurename}{Lista de figuras}%
-    \renewcommand{\listtablename}{Lista de tablas}%
-    \renewcommand{\abstractname}{Resumen}%
-    \renewcommand{\bibname}{Referencias}%
-  }
+  \setlocalecaption{spanish}{contents}{Índice}
+  \setlocalecaption{spanish}{listfigure}{Lista de figuras}
+  \setlocalecaption{spanish}{listtable}{Lista de tablas}
+  \setlocalecaption{spanish}{bib}{Referencias}
+  \setlocalecaption{spanish}{dedication}{Dedicatoria}
+  \setlocalecaption{spanish}{acknowledgements}{Agradecimientos}
   \newcommand*{\inaoe@strBy}{Por:}
+  \newcommand*{\inaoe@strByLower}{por}
   \newcommand*{\inaoe@strReq}{Tesis sometida como requisito parcial para obtener el grado de:}
   \newcommand*{\inaoe@strAt}{en el}
-  \newcommand*{\inaoe@strInst}{Instituto Nacional de Astrofísica,}
-  \newcommand*{\inaoe@strInstB}{Óptica y Electrónica}
   \newcommand*{\inaoe@strSuper}{Asesor:}
-  \newcommand{\inaoe@strCopy}{\copyright\ INAOE \inaoe@anio\par Derechos reservados\par
-    \begin{flushleft}
-      El autor otorga al INAOE el permiso de\\
-      reproducir este documento total o\\
-      parcialmente, citando la fuente.\\
-  \end{flushleft}}
+  \newcommand*{\inaoe@strAdvisors}{Asesores:}
+  \newcommand*{\inaoe@strRights}{Derechos reservados}
+  \newcommand*{\inaoe@strGrant}{El autor otorga al INAOE el permiso de reproducir este
+    documento total o parcialmente, citando la fuente.}
 \else
-  \addto\captionsenglish{%
-    \renewcommand{\chaptername}{Chapter}%
-    \renewcommand{\tablename}{Table}%
-    \renewcommand{\figurename}{Figure}%
-    \renewcommand{\contentsname}{Contents}%
-    \renewcommand{\listfigurename}{List of Figures}%
-    \renewcommand{\listtablename}{List of Tables}%
-    \renewcommand{\abstractname}{Abstract}%
-    \renewcommand{\bibname}{References}%
-  }
+  \setlocalecaption{english}{bib}{References}
+  \setlocalecaption{english}{dedication}{Dedication}
+  \setlocalecaption{english}{acknowledgements}{Acknowledgements}
   \newcommand*{\inaoe@strBy}{By:}
+  \newcommand*{\inaoe@strByLower}{by}
   \newcommand*{\inaoe@strReq}{Thesis submitted as a requirement for obtaining the degree of:}
   \newcommand*{\inaoe@strAt}{at the}
-  \newcommand*{\inaoe@strInst}{Instituto Nacional de Astrofísica,}
-  \newcommand*{\inaoe@strInstB}{Óptica y Electrónica}
   \newcommand*{\inaoe@strSuper}{Supervised by:}
-  \newcommand{\inaoe@strCopy}{\copyright\ INAOE \inaoe@anio\par All rights reserved\par
-    \begin{flushleft}
-      The author hereby grants the permission for full or\\
-      partial reproduction and distribution of this\\
-      document to INAOE while mentioning the source\\
-  \end{flushleft}}
+  \newcommand*{\inaoe@strAdvisors}{Doctoral Advisors:}
+  \newcommand*{\inaoe@strRights}{All rights reserved}
+  \newcommand*{\inaoe@strGrant}{The author hereby grants the permission for full or partial
+    reproduction and distribution of this document to INAOE while mentioning the source}
 \fi
+
+%% biblatex toma el título de la bibliografía de sus propias cadenas
+\AddToHook{package/biblatex/after}{%
+  \DefineBibliographyStrings{spanish}{bibliography={Referencias}, references={Referencias}}%
+  \DefineBibliographyStrings{english}{bibliography={References}, references={References}}%
+}
 
 %% ------------------------------------------------------------
 %%  METADATOS
@@ -164,13 +166,19 @@
 \newcommand*{\inaoe@grado}{Grado}
 \newcommand*{\inaoe@mes}{}
 \newcommand*{\inaoe@anio}{\the\year}
+\newcommand*{\inaoe@requisito}{\inaoe@strReq}
+\newcommand*{\inaoe@departamento}{Coordinación de Ciencias Computacionales}
 
-\newcommand{\tituloTesis}[1]{\gdef\inaoe@titulo{#1}}
-\newcommand{\autor}[1]{\gdef\inaoe@autor{#1}}
-\newcommand{\asesor}[1]{\gdef\inaoe@asesor{#1}}
-\newcommand{\grado}[1]{\gdef\inaoe@grado{#1}}
-\newcommand{\mes}[1]{\gdef\inaoe@mes{#1}}
-\newcommand{\anio}[1]{\gdef\inaoe@anio{#1}}
+\NewDocumentCommand{\tituloTesis}{m}{\gdef\inaoe@titulo{#1}}
+\NewDocumentCommand{\autor}{m}{\gdef\inaoe@autor{#1}}
+\NewDocumentCommand{\asesor}{m}{\gdef\inaoe@asesor{#1}}
+\NewDocumentCommand{\grado}{m}{\gdef\inaoe@grado{#1}}
+\NewDocumentCommand{\mes}{m}{\gdef\inaoe@mes{#1}}
+\NewDocumentCommand{\anio}{m}{\gdef\inaoe@anio{#1}}
+%% Línea sobre el grado en la portada; \requisito{} la omite
+\NewDocumentCommand{\requisito}{m}{\gdef\inaoe@requisito{#1}}
+%% Texto tras el © en la portada de propuesta
+\NewDocumentCommand{\departamento}{m}{\gdef\inaoe@departamento{#1}}
 
 %% Metadatos del PDF si el documento carga hyperref y no los definió
 \AtBeginDocument{%
@@ -184,119 +192,175 @@
 %%  ESTILO DE CAPÍTULOS
 %% ------------------------------------------------------------
 
-\newcommand*{\thickhrulefill}{%
-  \leavevmode\leaders\hrule height 1ex\hfill\kern\z@}
+%% Distancias medidas sobre la plantilla Typst, entre líneas base y
+%% bordes de regla, para que no dependan de la altura de los glifos.
+\newcommand*{\inaoe@reglagruesa}{%
+  \leaders\hrule\@height7.5\p@\@depth-3.5\p@\hfill}
+\newcommand*{\inaoe@regla}{\hrule\@height\p@}
 
-%% Capítulos numerados
-\renewcommand{\@makechapterhead}[1]{%
-  \vspace*{10\p@}%
-  {\parindent \z@ \centering \reset@font
-    \thickhrulefill\quad
-    {\scshape \@chapapp\ \thechapter\ }%
-    \quad \thickhrulefill
-    \par\nobreak
-    \vspace*{10\p@}%
-    \interlinepenalty\@M
-    \hrule
-    \vspace*{10\p@}%
-    %% Para recuperar los títulos en versalitas de versiones anteriores,
-    %% añada \scshape justo antes de #1 en la línea siguiente.
-    \Huge \bfseries #1\par\nobreak
-    \par
-    \vspace*{10\p@}%
-    \hrule
-    \vskip 100\p@
-}}
+\newcommand{\inaoe@cabecera}[2]{%
+  \ifx\relax#1\relax
+    \vspace*{\dimexpr9.5\p@-\topskip}%
+  \else
+    \vspace*{\dimexpr21.2\p@-\topskip}%
+    \nointerlineskip
+    \vbox to\z@{\vss\hb@xt@\hsize{%
+      \normalfont\inaoe@reglagruesa\quad\scshape#1\quad\inaoe@reglagruesa}}%
+    \nobreak
+    \vskip\dimexpr31.25\p@-\prevdepth
+  \fi
+  \inaoe@regla
+  \nobreak
+  \vskip10\p@
+  \prevdepth\z@
+  {\parindent\z@ \parskip\z@ \centering \interlinepenalty\@M
+    \normalfont\Huge\bfseries\baselineskip25.86\p@ #2\par}%
+  \nobreak
+  \vskip\dimexpr31\p@-\prevdepth
+  \inaoe@regla
+  \vskip60\p@}
 
-%% Capítulos sin número  (\chapter*)
-\renewcommand{\@makeschapterhead}[1]{%
-  \vspace*{10\p@}%
-  {\parindent \z@ \centering \reset@font
-    \thickhrulefill
-    \par\nobreak
-    \vspace*{10\p@}%
-    \interlinepenalty\@M
-    \hrule
-    \vspace*{10\p@}%
-    \Huge \bfseries #1\par\nobreak
-    \par
-    \vspace*{10\p@}%
-    \hrule
-    \vskip 100\p@
-}}
+\renewcommand{\@makechapterhead}[1]{\inaoe@cabecera{\@chapapp\ \thechapter}{#1}}
+\renewcommand{\@makeschapterhead}[1]{\inaoe@cabecera{}{#1}}
 
 %% ------------------------------------------------------------
-%%  PORTADA  (\portada)
+%%  ÍNDICES
+%%  Entradas de capítulo como las de sección (sin negritas, con
+%%  puntos) y sin espacio entre párrafos, como el índice de Typst.
+%% ------------------------------------------------------------
+
+\renewcommand*{\l@chapter}{\@dottedtocline{0}{\z@}{1.5em}}
+\let\inaoe@starttoc\@starttoc
+\renewcommand*{\@starttoc}[1]{\vskip\parskip{\parskip\z@\inaoe@starttoc{#1}}}
+
+%% ------------------------------------------------------------
+%%  PÁGINAS PRELIMINARES
+%%  Capítulos sin número que aparecen en el índice.
+%% ------------------------------------------------------------
+
+\newcommand{\inaoe@preliminar}[1]{%
+  \chapter*{#1}%
+  \addcontentsline{toc}{chapter}{#1}}
+
+\NewDocumentEnvironment{dedicatoria}{}{\inaoe@preliminar{\dedicationname}}{}
+\NewDocumentEnvironment{agradecimientos}{}{\inaoe@preliminar{\acknowledgementsname}}{}
+\NewDocumentEnvironment{resumen}{}{\inaoe@preliminar{\abstractname}}{}
+
+%% Las listas de figuras y de tablas se omiten si el documento no
+%% tiene figuras o tablas (se sabe desde la compilación anterior).
+\newcommand*{\inaoe@marcar}[1]{%
+  \if@filesw\immediate\write\@auxout{\string\inaoe@hay{#1}}\fi}
+\newcommand*{\inaoe@hay}[1]{\global\@namedef{inaoe@hay@#1}{}}
+\AddToHook{env/figure/begin}{\inaoe@marcar{lof}}
+\AddToHook{env/table/begin}{\inaoe@marcar{lot}}
+
+\let\inaoe@listoffigures\listoffigures
+\let\inaoe@listoftables\listoftables
+\RenewDocumentCommand{\listoffigures}{}{\ifcsname inaoe@hay@lof\endcsname\inaoe@listoffigures\fi}
+\RenewDocumentCommand{\listoftables}{}{\ifcsname inaoe@hay@lot\endcsname\inaoe@listoftables\fi}
+
+%% ------------------------------------------------------------
+%%  PORTADAS  (\portada y \portadaPropuesta)
 %%
-%%  Todo el contenido se dibuja en coordenadas absolutas de la
-%%  hoja carta (cm, origen en la esquina inferior izquierda) por
-%%  medio del gancho shipout/background del kernel. Por ello no
-%%  depende de los márgenes del documento ni los modifica.
+%%  Se dibujan con el gancho shipout/background del kernel en
+%%  coordenadas absolutas de la hoja carta (cm, origen en la esquina
+%%  superior izquierda, y hacia abajo negativa), las mismas que la
+%%  plantilla Typst. No dependen de los márgenes ni los modifican.
 %% ------------------------------------------------------------
 
-%% Bloque de texto centrado: 12 x 21.9 cm
-\newcommand{\inaoe@portada@texto}{%
-  \begin{minipage}[b][21.9cm][c]{12cm}
-    \normalfont
-    \begin{center}\normalsize
-      \vspace{\stretch{1.2}}
-      {\Large\bfseries\inaoe@titulo\par}
-      \vspace{\stretch{0.8}}
-      \inaoe@strBy\par
-      \vspace{\stretch{0.2}}
-      {\normalsize\bfseries\inaoe@autor\par}
-      \vspace{\stretch{0.5}}
-      {\inaoe@strReq\par}
-      \vspace{\stretch{0.2}}
-      \textbf{\MakeUppercase{\inaoe@grado}}
-      \vspace{\stretch{0.2}}
-
-      \inaoe@strAt
-
-      \textbf{\inaoe@strInst}
-
-      \textbf{\inaoe@strInstB}
-
-      \ifx\inaoe@mes\@empty\else\inaoe@mes,\ \fi\inaoe@anio
-
-      Tonantzintla, Puebla
-
-      \vspace{\stretch{0.8}}
-      {\inaoe@strSuper\par}
-      {\bfseries\inaoe@asesor\par}
-      \vspace{\stretch{0.5}}
-      \vspace{\stretch{0.2}}
-
-      {\inaoe@strCopy}
-
-    \end{center}
-  \end{minipage}%
+%% Marco institucional y logotipos comunes a ambas portadas
+\newcommand*{\inaoe@marco}{%
+  {\color{DBlue}%
+    \put(6.2,-2.44){\rule{13.3cm}{0.8mm}}%
+    \put(6.2,-25.63){\rule{10.6cm}{0.8mm}}%
+    \put(6.2,-25.63){\rule{0.8mm}{23.2cm}}%
+    \put(19.42,-22.86){\rule{0.8mm}{20.5cm}}}%
+  \put(2.7,-2.4){\makebox(0,0)[lt]{\includegraphics[width=3.097cm]{cover/Inaoe.pdf}}}%
+  \put(16.85,-22.57){\makebox(0,0)[lt]{\includegraphics[width=3.124cm]{cover/cmyk-original.jpg}}}%
 }
 
-%% Marco, logotipos y bloque de texto
-\newcommand{\inaoe@portada@dibujo}{%
-  \setlength{\unitlength}{1cm}%
-  \begin{picture}(0,0)
-    % Marco institucional
-    {\color{DBlue}\linethickness{0.8mm}%
-      \put(6.2,25.54){\line(1,0){13.3}}
-      \put(6.2,2.348){\line(1,0){10.6}}
-      \put(6.24,2.31){\line(0,1){23.2}}
-      \put(19.46,25.58){\line(0,-1){20.5}}}
-    % Logotipos
-    \put(16.85,2.305){\includegraphics[scale=0.18]{cover/cmyk-original.jpg}}
-    \put(2.7,2.3){\includegraphics[scale=.352]{cover/Inaoe.pdf}}
-    % Texto (esquina inferior izquierda del bloque)
-    \put(7.285,3.04){\inaoe@portada@texto}
-  \end{picture}%
+%% Párrafos justificados con la última línea (y las cortadas con \\)
+%% centradas, como el texto centrado y justificado de Typst.
+\newcommand*{\inaoe@centrado}{%
+  \leftskip\z@\@plus1fil \rightskip\z@\@plus-1fil \parfillskip\z@\@plus2fil
+  \parindent\z@ \def\\{\hskip\z@\@plus2fil\break}}
+
+%% #1: posición vertical (cm desde arriba), #2: altura, #3: contenido
+\newcommand{\inaoe@bloque}[3]{%
+  \put(6.85,-#1){\makebox(0,0)[lt]{%
+    \parbox[t][#2][c]{12cm}{%
+      \normalfont\normalsize\frenchspacing\parskip0.75em\inaoe@centrado #3}}}}
+
+\newcommand*{\inaoe@fecha}{\ifx\inaoe@mes\@empty\else\inaoe@mes, \fi\inaoe@anio}
+
+%% Salto vertical con la semántica de v() en Typst: sustituye el
+%% espacio entre párrafos y el interlineado, de modo que mide desde la
+%% línea base anterior hasta la altura de mayúsculas (7.94 pt) siguiente.
+\newcommand*{\inaoe@v}[1]{%
+  \vskip\dimexpr7.94\p@-\parskip-\baselineskip\relax\vskip#1\relax}
+
+\newcommand*{\inaoe@textoTesis}{%
+  \vskip-\parskip\vskip\stretch{1.2}%
+  {\fontsize{14pt}{0pt}\selectfont\bfseries\baselineskip18.65\p@\inaoe@titulo\par}
+  \inaoe@v{\stretch{0.8}}
+  \inaoe@strBy\par
+  \inaoe@v{\stretch{0.2}}
+  \textbf{\inaoe@autor}\par
+  \inaoe@v{\stretch{0.5}}
+  \inaoe@requisito\par
+  \inaoe@v{\stretch{0.2}}
+  \textbf{\MakeUppercase{\inaoe@grado}}\par
+  \inaoe@v{\stretch{0.2}}
+  \inaoe@strAt\par
+  \textbf{Instituto Nacional de Astrofísica,}\par
+  \textbf{Óptica y Electrónica}\par
+  \inaoe@fecha\par
+  Tonantzintla, Puebla\par
+  \inaoe@v{\stretch{0.8}}
+  \inaoe@strSuper\ \textbf{\ignorespaces\inaoe@asesor}\par
+  \inaoe@v{\stretch{0.7}}
+  \copyright\ INAOE \inaoe@anio\\
+  \inaoe@strRights\par
+  {\leftskip\z@ \rightskip 2.3cm \parfillskip\z@\@plus1fil
+    \hspace*{10mm}\inaoe@strGrant\par}
+  \vskip-\prevdepth
 }
 
-\newcommand*{\portada}{%
+\newcommand*{\inaoe@textoPropuesta}{%
+  \parskip\z@ \centering
+  {\fontsize{17.28pt}{0pt}\selectfont\bfseries\baselineskip26.13\p@
+    \inaoe@titulo\\\inaoe@grado\par}
+  \inaoe@v{1.8cm}
+  \inaoe@strByLower\par
+  \inaoe@v{0.75cm}
+  \textbf{\inaoe@autor}\par
+  \inaoe@v{1.3cm}
+  \inaoe@strAdvisors\par
+  \inaoe@v{1.3cm}
+  \textbf{\ignorespaces\inaoe@asesor}\par
+  \inaoe@v{2.2cm}
+  Instituto Nacional de Astrofísica, Óptica y Electrónica\\
+  \copyright\ \inaoe@departamento\par
+  \inaoe@v{1.25cm}
+  \inaoe@fecha\\
+  Santa María de Tonantzintla, Puebla, CP 72840\par
+  \vskip-\prevdepth
+}
+
+\newcommand{\inaoe@portada}[1]{%
   \clearpage
-  \AddToHookNext{shipout/background}{%
-    \put(0,-\paperheight){\inaoe@portada@dibujo}}%
+  \AddToHookNext{shipout/background}{\setlength{\unitlength}{1cm}\inaoe@marco#1}%
   \thispagestyle{empty}%
   \null\newpage
 }
+
+%% Portada oficial de tesis
+\NewDocumentCommand{\portada}{}{%
+  \inaoe@portada{\inaoe@bloque{1.5}{23.74cm}{\inaoe@textoTesis}}}
+
+%% Portada de propuesta de tesis (formato de la Coordinación de
+%% Ciencias Computacionales); sin derechos ni permiso de reproducción.
+\NewDocumentCommand{\portadaPropuesta}{}{%
+  \inaoe@portada{\inaoe@bloque{2.4}{20.17cm}{\inaoe@textoPropuesta}}}
 
 \endinput

@@ -1,19 +1,23 @@
 %% ============================================================
 %%  Tesis INAOE — documento de ejemplo
 %%
-%%  Compilar:   latexmk          (lee .latexmkrc: pdflatex + bibtex)
+%%  Compilar:   latexmk          (lee .latexmkrc: pdflatex + biber)
 %%  Vigilar:    latexmk -pvc     (recompila al guardar)
 %%  Limpiar:    latexmk -C
 %%
 %%  Compilación rápida mientras se escribe:
 %%    \documentclass[12pt,draft]{report} omite imágenes, microtype
 %%    e hipervínculos y marca las líneas desbordadas.
+%%
+%%  Con LuaLaTeX (fuentes OpenType y unicode-math):  latexmk -lualatex
+%%  Con Tectonic:                                    tectonic example.tex
 %% ============================================================
 
 \documentclass[12pt]{report}
 
 %------------------------------------------------
-% Plantilla: fuentes, márgenes, idioma y portada
+% Plantilla: fuentes, matemáticas (mathtools),
+% márgenes, idioma, portada y capítulos
 %------------------------------------------------
 
 \usepackage[english]{inaoe-tesis}
@@ -25,12 +29,6 @@
 
 \usepackage{microtype}
 \setlength{\emergencystretch}{3em}
-
-%------------------------------------------------
-% Matemáticas (amsmath ya lo carga la plantilla)
-%------------------------------------------------
-
-\usepackage{mathtools}
 
 %------------------------------------------------
 % Figuras y tablas
@@ -60,11 +58,11 @@
 \usepackage[normalem]{ulem}
 
 %------------------------------------------------
-% Bibliografía
+% Bibliografía (biblatex + biber, estilo IEEE)
 %------------------------------------------------
 
-% El estilo unsrtnat requiere natbib; numbers -> citas numéricas [1]
-\usepackage[numbers]{natbib}
+\usepackage[style=ieee]{biblatex}
+\addbibresource{references.bib}
 
 %------------------------------------------------
 % Hipervínculos (siempre al final del preámbulo)
@@ -94,7 +92,11 @@
 \grado{M.S. in Computer Science}
 
 \mes{October}
-\anio{2025}
+% \anio{2025}  % opcional; si se omite usa el año actual
+
+% Opcionales:
+% \requisito{}  % omite la línea sobre el grado en la portada
+% \departamento{Coordinación de Ciencias Computacionales}  % \portadaPropuesta
 
 %================================================
 % DOCUMENTO
@@ -103,48 +105,33 @@
 \begin{document}
 
 %------------------------------------------------
-% Portada y página en blanco posterior
+% Portada
 %------------------------------------------------
 
 \portada
-\thispagestyle{empty}\null\clearpage
+% \portadaPropuesta  % formato de propuesta de tesis (CCC)
 
 %------------------------------------------------
 % Páginas preliminares
 %------------------------------------------------
 
-\pagenumbering{Roman}
+\pagenumbering{roman}
 
 \tableofcontents
-\listoffigures
-\listoftables
+\listoffigures  % se omite si no hay figuras
+\listoftables   % se omite si no hay tablas
 
-%------------------------------------------------
-% Dedication
-%------------------------------------------------
+\begin{dedicatoria}
+  Dedicado a...
+\end{dedicatoria}
 
-\chapter*{Dedication}
-\addcontentsline{toc}{chapter}{Dedication}
+\begin{agradecimientos}
+  I wish to express my sincere gratitude to...
+\end{agradecimientos}
 
-Dedicado a...
-
-%------------------------------------------------
-% Acknowledgements
-%------------------------------------------------
-
-\chapter*{Acknowledgements}
-\addcontentsline{toc}{chapter}{Acknowledgements}
-
-I wish to express my sincere gratitude to...
-
-%------------------------------------------------
-% Abstract
-%------------------------------------------------
-
-\chapter*{\abstractname}
-\addcontentsline{toc}{chapter}{\abstractname}
-
-This thesis presents...
+\begin{resumen}
+  This thesis presents...
+\end{resumen}
 
 %------------------------------------------------
 % Cuerpo principal
@@ -170,7 +157,16 @@ Text...
 
 \chapter{Methodology}
 
-Text...
+Text~\cite{lamport94}. Text \textcite{knuth84}.
+
+With a suffix: \cite[p.~10]{lamport94}, and only the year: \citeyear{knuth84}.
+
+% Formas de citar (biblatex):
+%   \cite{key}         [1]
+%   \textcite{key}     L. Lamport [1]
+%   \citeauthor{key}   L. Lamport
+%   \citeyear{key}     1994
+%   \cite[p.~10]{key}  [1, p. 10]
 
 \chapter{Results}
 
@@ -202,11 +198,6 @@ Text...
 % Bibliografía
 %------------------------------------------------
 
-\clearpage
-\phantomsection % ancla correcta para el enlace del índice
-\addcontentsline{toc}{chapter}{\bibname}
-
-\bibliographystyle{unsrtnat}
-\bibliography{references}
+\printbibliography[heading=bibintoc]
 
 \end{document}

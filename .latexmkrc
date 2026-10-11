@@ -27,7 +27,7 @@
 use Digest::MD5 qw(md5_hex);
 
 $pdf_mode   = 1;   # pdflatex: el motor más rápido para esta plantilla
-$bibtex_use = 2;   # ejecuta bibtex solo cuando cambian .bib o las citas
+$bibtex_use = 2;   # ejecuta biber solo cuando cambian .bib o las citas
 @default_files = ('example.tex');
 $clean_ext  = 'synctex.gz run.xml bbl fmt fmtdeps fmtdeps.tex';
 
